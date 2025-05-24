@@ -18,12 +18,12 @@ TARGET = my_program
 # Default target: builds the executable
 all: $(TARGET)
 
+
 # Rule to link object files into the final executable
 $(TARGET): $(OBJS)
-	@echo "All object files compiled. Taking a small break before linking..."
-	sleep 2 # Pause for 2 seconds before linking
+	@echo "All object files compiled. Start linking..."
 	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET)
-	@echo "Linking complete!"
+	@echo "Linking complete."
 
 # Rule to compile each .c file into a .o object file
 # $< refers to the first prerequisite (the .c file)
@@ -31,7 +31,6 @@ $(TARGET): $(OBJS)
 %.o: %.c
 	@echo "Compiling $<..."
 	$(CC) $(CFLAGS) -c $< -o $@
-	sleep 1 # Pause for 1 second after each compilation
 	@echo "Finished compiling $<."
 
 # Rule to clean up generated files

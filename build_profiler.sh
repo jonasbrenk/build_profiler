@@ -144,6 +144,7 @@ echo ""
 if [[ -n "$BUILD_COMMAND" ]]; then
     echo "STEP 2/3: Running build command: $BUILD_COMMAND"
     # Execute the build command in a subshell, changing to TARGET_DIR first.
+    echo "";
     (cd "$TARGET_DIR" && eval "$BUILD_COMMAND")
     BUILD_EXIT_CODE=$?
     if [ "$BUILD_EXIT_CODE" -ne 0 ]; then
@@ -221,10 +222,22 @@ echo "Build profiling complete. Results saved to '$OUTPUT_CSV'."
 # 5. Print Results to Console
 echo ""
 echo "--- Build Profile Results ---"
+echo ""
 if [ -s "$OUTPUT_CSV" ]; then # Check if file exists and is not empty
     if command -v column >/dev/null 2>&1; then
         # Use column -t for pretty printing if available
-        cat "$OUTPUT_CSV" | column -t -s ','
+        #cat "$OUTPUT_CSV" | column -t -s ','
+
+        # Define pretty names for the columns
+        PRETTY_HEADER="File Path,Last Modified At"
+
+        # Combine the pretty header and the CSV data (skipping its original header)
+        # into a single stream, then pipe the whole thing to 'column'.
+        (
+            echo "$PRETTY_HEADER"
+            tail -n +2 "$OUTPUT_CSV"
+        ) | column -t -s ','
+
     else
         # Fallback if 'column' is not available
         echo "Note: 'column' command not found, printing raw CSV."
@@ -233,6 +246,7 @@ if [ -s "$OUTPUT_CSV" ]; then # Check if file exists and is not empty
 else
     echo "No changes detected or output file is empty." # This is the message you were looking for!
 fi
-echo "---------------------------"
+echo ""
+echo "----------------------------"
 
 # Cleanup is handled by the trap command on script exit.
