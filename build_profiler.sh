@@ -232,12 +232,13 @@ if [ -s "$OUTPUT_CSV" ]; then # Check if file exists and is not empty
         PRETTY_HEADER="File Path,Last Modified At"
 
         # Combine the pretty header and the CSV data (skipping its original header)
-        # into a single stream, then pipe the whole thing to 'column'.
+        # into a single stream.
         (
             echo "$PRETTY_HEADER"
             tail -n +2 "$OUTPUT_CSV"
-        ) | column -t -s ','
-
+        ) | sed 's/"//g' | column -t -s ','
+        #      Pipes the combined output through sed to remove all double quotes,
+        #      then pipes the cleaned output to 'column' for formatting.
     else
         # Fallback if 'column' is not available
         echo "Note: 'column' command not found, printing raw CSV."
