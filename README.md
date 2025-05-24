@@ -87,7 +87,7 @@ The results will be saved to `build_profile.csv` in the directory where the scri
 
 ## Example Project
 
-To demonstrate the build profiler, there is a simple C project with a Makefile that includes intentional pauses.
+To demonstrate the build profiler, there is a simple C project with a Makefile that can be used to test functionality.
 
 **Project Structure:**
 
