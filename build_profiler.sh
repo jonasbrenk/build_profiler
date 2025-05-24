@@ -61,8 +61,8 @@ scan_directory() {
 
     echo "Scanning '$target_dir'..."
     find "$target_dir" -type f -print0 | while IFS= read -r -d $'\0' file; do
-        if stat -c "%Y %n" "$file" &>/dev/null; then
-            stat -c "%Y %n" "$file"
+        if stat -c "%.9Y %n" "$file" &>/dev/null; then
+            stat -c "%.9Y %n" "$file"
         else
             echo "Warning: Could not stat file: $file (possibly deleted or permission issue)" >&2
         fi
@@ -167,6 +167,7 @@ echo ""
 echo "Comparing files and generating CSV..."
 
 # Read initial file states into an associative array (bash 4+ for efficiency)
+# 'timestamp' will now include nanoseconds (e.g., "1678886400.123456789")
 declare -A initial_states
 while IFS= read -r line; do
     timestamp=$(echo "$line" | awk '{print $1}')
@@ -179,15 +180,31 @@ echo "filepath,last_modification_timestamp" > "$OUTPUT_CSV"
 
 # Iterate through final file states and compare
 while IFS= read -r line; do
-    final_epoch_timestamp=$(echo "$line" | awk '{print $1}')
+    final_epoch_timestamp_full=$(echo "$line" | awk '{print $1}') # e.g., "1678886400.123456789"
     filepath=$(echo "$line" | awk '{$1=""; print $0}' | xargs)
 
-    initial_epoch_timestamp="${initial_states[$filepath]}"
+    initial_epoch_timestamp_full="${initial_states[$filepath]}"
 
-    # Check if the file is new OR if its timestamp has changed
-    if [ -z "$initial_epoch_timestamp" ] || [ "$initial_epoch_timestamp" -ne "$final_epoch_timestamp" ]; then
-        # Convert epoch timestamp to human-readable format
-        human_readable_timestamp=$(date -d "@$final_epoch_timestamp" "+%Y-%m-%d %H:%M:%S %Z")
+    # --- Important Change for Comparison ---
+    # Use '!=' for string comparison of the full timestamp (including nanoseconds).
+    # '-ne' is for integer numeric comparison.
+    if [ -z "$initial_epoch_timestamp_full" ] || [ "$initial_epoch_timestamp_full" != "$final_epoch_timestamp_full" ]; then
+        # --- Changes for Nanosecond Formatting ---
+
+        # Split the full timestamp into integer seconds and nanoseconds part
+        final_epoch_seconds=$(echo "$final_epoch_timestamp_full" | cut -d'.' -f1)
+        # Use -s to suppress error if no dot (e.g., if stat outputted just seconds)
+        final_epoch_nanoseconds=$(echo "$final_epoch_timestamp_full" | cut -s -d'.' -f2)
+
+        human_readable_timestamp=""
+        if [ -n "$final_epoch_nanoseconds" ]; then
+            # Pad nanoseconds with trailing zeros to 9 digits for consistency (e.g., "123" -> "123000000")
+            formatted_nanoseconds=$(printf "%-9s" "$final_epoch_nanoseconds" | tr ' ' '0')
+            human_readable_timestamp=$(date -d "@$final_epoch_seconds" "+%Y-%m-%d %H:%M:%S.${formatted_nanoseconds} %Z")
+        else
+            # Fallback if for some reason nanoseconds are not present (shouldn't happen with %.9Y)
+            human_readable_timestamp=$(date -d "@$final_epoch_seconds" "+%Y-%m-%d %H:%M:%S %Z")
+        fi
 
         # Output to CSV, ensuring fields are quoted to handle spaces/commas in paths/times
         echo "\"$filepath\",\"$human_readable_timestamp\"" >> "$OUTPUT_CSV"
