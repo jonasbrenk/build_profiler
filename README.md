@@ -1,4 +1,4 @@
- Build Profiler
+# Build Profiler
 
 This project provides a robust Bash script (`build_profiler.sh`) designed to profile build processes by meticulously tracking file modification timestamps within a specified directory.
 
@@ -87,7 +87,7 @@ The results will be saved to `build_profile.csv` in the directory where the scri
 
 ## Example Project
 
-To demonstrate the build profiler, there is a simple C project with a Makefile that includes intentional pauses.
+To demonstrate the build profiler, there is a simple C project with a Makefile that can be used to test functionality.
 
 **Project Structure:**
 
@@ -116,5 +116,5 @@ Or from the `test_project/` directory:
 This command will:
 
 - Scan the `test_project` directory.
-- Execute `make clean all` inside `test_project`, which will clean previous builds, then compile `main.c` and `my_lib.c` (with 1-second pauses after each), and finally link `my_program` (with a 2-second pause before linking).
-- Perform a final scan and report the timestamps of `main.o`, `my_lib.o`, and `my_program`, demonstrating the effect of the delay between different build actions in the Makefile.
+- Execute `make clean all` inside `test_project`, which will clean previous builds, then compile `main.c` and `my_lib.c` and finally link `my_program`.
+- Perform a final scan and report the timestamps of `main.o`, `my_lib.o`, and `my_program`, demonstrating the delay between different build actions in the Makefile.
