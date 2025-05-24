@@ -1,4 +1,4 @@
- Build Profiler
+# Build Profiler
 
 This project provides a robust Bash script (`build_profiler.sh`) designed to profile build processes by meticulously tracking file modification timestamps within a specified directory.
 
