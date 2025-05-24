@@ -116,5 +116,5 @@ Or from the `test_project/` directory:
 This command will:
 
 - Scan the `test_project` directory.
-- Execute `make clean all` inside `test_project`, which will clean previous builds, then compile `main.c` and `my_lib.c` (with 1-second pauses after each), and finally link `my_program` (with a 2-second pause before linking).
-- Perform a final scan and report the timestamps of `main.o`, `my_lib.o`, and `my_program`, demonstrating the effect of the delay between different build actions in the Makefile.
+- Execute `make clean all` inside `test_project`, which will clean previous builds, then compile `main.c` and `my_lib.c` and finally link `my_program`.
+- Perform a final scan and report the timestamps of `main.o`, `my_lib.o`, and `my_program`, demonstrating the delay between different build actions in the Makefile.
